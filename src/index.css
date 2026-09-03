@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/* Enable `dark:` variants driven by a `.dark` class on <html>. */
+@custom-variant dark (&:is(.dark *));
+
+/* ──────────────────────────────────────────────────────────
+   Theme tokens — ported from taskflow-mockup.html
+   Light values live in :root, dark overrides in .dark.
+   ────────────────────────────────────────────────────────── */
+:root {
+  --radius: 0.5rem; /* 8px — matches mockup --radius-md */
+
+  /* shadcn semantic tokens */
+  --background: #f0ede8;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #534ab7;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f4;
+  --secondary-foreground: #1a1a1a;
+  --muted: #f5f5f4;
+  --muted-foreground: #999990;
+  --accent: #eeedfe;
+  --accent-foreground: #534ab7;
+  --destructive: #a32d2d;
+  --border: rgba(0, 0, 0, 0.1);
+  --input: rgba(0, 0, 0, 0.2);
+  --ring: #534ab7;
+
+  /* Task Flow custom tokens */
+  --surface: #ffffff;
+  --surface-2: #f5f5f4;
+  --content-2: #555550;
+  --content-3: #999990;
+  --border-strong: rgba(0, 0, 0, 0.2);
+  --brand: #534ab7;
+  --brand-light: #eeedfe;
+  --brand-mid: #afa9ec;
+  --brand-dark: #26215c;
+}
+
+.dark {
+  --background: #141414;
+  --foreground: #f5f5f0;
+  --card: #1c1c1e;
+  --card-foreground: #f5f5f0;
+  --popover: #1c1c1e;
+  --popover-foreground: #f5f5f0;
+  --primary: #534ab7;
+  --primary-foreground: #ffffff;
+  --secondary: #2c2c2e;
+  --secondary-foreground: #f5f5f0;
+  --muted: #2c2c2e;
+  --muted-foreground: #666660;
+  --accent: #2e2a5a;
+  --accent-foreground: #cccaf5;
+  --destructive: #e06c6c;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #afa9ec;
+
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --content-2: #a8a8a0;
+  --content-3: #666660;
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --brand: #534ab7;
+  --brand-light: #2e2a5a;
+  --brand-mid: #3c3489;
+  --brand-dark: #cccaf5;
+}
+
+/* Expose the tokens above to Tailwind as utilities
+   (bg-surface, text-content-2, border-strong, text-brand, …). */
+@theme inline {
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-content-2: var(--content-2);
+  --color-content-3: var(--content-3);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--brand);
+  --color-brand-light: var(--brand-light);
+  --color-brand-mid: var(--brand-mid);
+  --color-brand-dark: var(--brand-dark);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC",
+      "Microsoft JhengHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
