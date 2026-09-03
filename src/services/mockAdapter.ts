@@ -60,11 +60,10 @@ function respond<T>(
 }
 
 /**
- * Stands in for the Spring Boot backend when `VITE_DATA_SOURCE=mock` (the
- * GitHub Pages build). Routes the same `/tasks` and `/categories` calls the
- * app already makes through `api.ts`, backed by an in-memory store seeded
- * from `mockTasks.ts` and persisted to localStorage so a refresh keeps
- * whatever was added/toggled/deleted during the demo.
+ * Stands in for a backend. Routes the same `/tasks` and `/categories` calls
+ * the app already makes through `api.ts`, backed by an in-memory store
+ * seeded from `mockTasks.ts` and persisted to localStorage so a refresh
+ * keeps whatever was added/toggled/deleted.
  */
 export const mockAdapter: AxiosAdapter = async (config) => {
   const method = (config.method ?? "get").toLowerCase()
