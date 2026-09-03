@@ -3,13 +3,17 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # 可以在 repo actions tab 手動重新觸發，不用 push commit
   workflow_dispatch:
 
+# actions/deploy-pages 的硬性需求：讀取程式碼、寫入 Pages、
+# 以及做 OIDC 身份驗證用的 id-token
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# 連續兩次 push 不該亂序部署 — 取消還在跑的舊的那次，只留最新的跑到底
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -24,20 +28,26 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
+          # Vite 8 要求 Node >=20.19/22.12 — 跟本機踩過的版本限制一樣
           node-version: "22"
           cache: npm
 
+      # 照 package-lock.json 精確安裝，比 `npm install` 快且結果穩定，適合 CI
       - name: Install dependencies
         run: npm ci
 
+      # `pages` mode 會讓 vite.config.ts 把 base 設成 `/task-flow/`
       - name: Build (pages mode)
         run: npx tsc -b && npx vite build --mode pages
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
+          # 第一次部署時 Pages 站台實體可能還沒建立 —
+          # 用 API 直接建立/啟用，而不是只查詢
           enablement: true
 
+      # 把 dist/ 打包成 deploy-pages 認得的 artifact 格式
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -46,6 +56,8 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    # 綁定到 github-pages 這個部署環境，這樣才會出現在
+    # repo 的 Deployments 裡，並附上部署完成的網址
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
