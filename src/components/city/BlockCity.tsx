@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react"
+import { IconMenu2 } from "@tabler/icons-react"
 import { CityEngine, type CityStats } from "@/components/city/cityEngine"
 import type { CityStatMax } from "@/lib/cityStats"
+import { useSidebar } from "@/context/sidebar-context"
 
 interface BlockCityProps {
   /** Playground values driven by the sliders; feeds the city simulation. */
@@ -39,15 +41,25 @@ const BLOCK_CITY_CSS = `
 
 /* Below md, the header and stat cards collide (both are absolutely
  * positioned for a desktop-width canvas) — stack the stats under the
- * header instead, and let the sliders wrap 2-per-row so they stay usable. */
+ * header instead, and let the sliders wrap 2-per-row so they stay usable.
+ * The header is also shifted right to clear the hamburger button (below),
+ * which only exists at this same breakpoint. */
 @media (max-width: 768px) {
-  .block-city .city-header { top: 14px; left: 14px; }
+  .block-city .city-header { top: 20px !important; left: 60px !important; }
   .block-city .city-title { font-size: 20px !important; }
   .block-city .city-stats { top: 76px !important; right: 14px !important; left: 14px; flex-wrap: wrap; justify-content: flex-end; }
   .block-city .city-stat-card { min-width: 64px !important; padding: 7px 10px !important; }
   .block-city .city-stat-value { font-size: 22px !important; }
   .block-city .city-sliders { flex-wrap: wrap; gap: 14px 20px !important; padding: 12px 16px !important; }
   .block-city .city-slider { flex: 1 1 calc(50% - 10px) !important; }
+}
+
+/* display:flex has to come from a stylesheet rule (not the button's own
+ * inline style) so this media query can win over it — an inline display
+ * value would out-specificity md:hidden and the button would never hide. */
+.block-city .city-menu-btn { display: flex; }
+@media (min-width: 768px) {
+  .block-city .city-menu-btn { display: none; }
 }
 `
 
@@ -56,6 +68,7 @@ export function BlockCity({ stats, cardStats, maxes, onStatsChange }: BlockCityP
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const engineRef = useRef<CityEngine | null>(null)
   const [people, setPeople] = useState(0)
+  const { isOpen: sidebarOpen, open: openSidebar } = useSidebar()
 
   // Create the engine once; React owns its lifecycle.
   useEffect(() => {
@@ -122,6 +135,32 @@ export function BlockCity({ stats, cardStats, maxes, onStatsChange }: BlockCityP
 
       <div ref={wrapRef} style={{ flex: 1, position: "relative", minHeight: 0 }}>
         <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }} />
+
+        {!sidebarOpen && (
+          <button
+            type="button"
+            onClick={openSidebar}
+            aria-label="Open menu"
+            className="city-menu-btn"
+            style={{
+              position: "absolute",
+              top: 18,
+              left: 14,
+              alignItems: "center",
+              justifyContent: "center",
+              width: 34,
+              height: 34,
+              borderRadius: 10,
+              background: "#fff",
+              border: "1px solid #e3e8ef",
+              boxShadow: "0 6px 16px rgba(80,110,150,0.14)",
+              color: "#2a3140",
+              cursor: "pointer",
+            }}
+          >
+            <IconMenu2 size={18} />
+          </button>
+        )}
 
         <div className="city-header" style={{ position: "absolute", top: 24, left: 28, pointerEvents: "none" }}>
           <div style={{ fontSize: 12, letterSpacing: 4, fontWeight: 800, color: "#d97a55", fontFamily: mono }}>TASK·FLOW</div>
