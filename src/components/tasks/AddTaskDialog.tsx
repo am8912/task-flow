@@ -115,7 +115,7 @@ export function AddTaskDialog() {
       <DialogTrigger asChild>
         <Button size="sm" className="gap-1.5">
           <IconPlus size={15} />
-          Add Task
+          <span className="hidden sm:inline">Add Task</span>
         </Button>
       </DialogTrigger>
 

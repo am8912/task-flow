@@ -46,7 +46,9 @@ export class CityEngine {
     this.pending = g("pendingTasks", 16)
     this.overdue = g("overdueTasks", 3)
     this.newt = g("newTasksToday", 5)
-    this.nComp = this.completed / this.MAX.completed
+    // Clamped to [0,1]: used to index directly into fixed-length arrays
+    // (extraTrees, lamps) below, so it can never overshoot their bounds.
+    this.nComp = Math.min(1, this.completed / this.MAX.completed)
     this.nPend = this.pending / this.MAX.pending
     this.nOver = this.overdue / this.MAX.overdue
     this.nNew = this.newt / this.MAX.newt
@@ -494,7 +496,7 @@ export class CityEngine {
   loop = (ts: number) => {
     if (!this._last) this._last = ts; let dt = (ts - this._last) / 1000; this._last = ts; if (dt > 0.05) dt = 0.05; this.t += dt
     const ease = (cur: number, tgt: number) => cur + (tgt - cur) * Math.min(1, dt * 3)
-    this.nComp = ease(this.nComp, this.completed / this.MAX.completed)
+    this.nComp = ease(this.nComp, Math.min(1, this.completed / this.MAX.completed))
     // pending scales linearly with no ceiling — more pending always means more
     // citizens (very large values will tax the canvas).
     this.nPend = ease(this.nPend, this.pending / this.MAX.pending)

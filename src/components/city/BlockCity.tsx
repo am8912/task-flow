@@ -30,12 +30,25 @@ const METRICS: MetricDef[] = [
 
 const mono = "'JetBrains Mono', monospace"
 
-const RANGE_CSS = `
+const BLOCK_CITY_CSS = `
 .block-city input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer}
 .block-city input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:#e3e8ef}
 .block-city input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid currentColor;margin-top:-5px;box-shadow:0 1px 3px rgba(60,80,110,.3)}
 .block-city input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:#e3e8ef}
 .block-city input[type=range]::-moz-range-thumb{width:16px;height:16px;border:3px solid currentColor;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(60,80,110,.3)}
+
+/* Below md, the header and stat cards collide (both are absolutely
+ * positioned for a desktop-width canvas) — stack the stats under the
+ * header instead, and let the sliders wrap 2-per-row so they stay usable. */
+@media (max-width: 768px) {
+  .block-city .city-header { top: 14px; left: 14px; }
+  .block-city .city-title { font-size: 20px !important; }
+  .block-city .city-stats { top: 76px !important; right: 14px !important; left: 14px; flex-wrap: wrap; justify-content: flex-end; }
+  .block-city .city-stat-card { min-width: 64px !important; padding: 7px 10px !important; }
+  .block-city .city-stat-value { font-size: 22px !important; }
+  .block-city .city-sliders { flex-wrap: wrap; gap: 14px 20px !important; padding: 12px 16px !important; }
+  .block-city .city-slider { flex: 1 1 calc(50% - 10px) !important; }
+}
 `
 
 export function BlockCity({ stats, cardStats, maxes, onStatsChange }: BlockCityProps) {
@@ -74,6 +87,7 @@ export function BlockCity({ stats, cardStats, maxes, onStatsChange }: BlockCityP
   const card = (m: MetricDef) => (
     <div
       key={m.key}
+      className="city-stat-card"
       style={{
         background: "#fff",
         border: "1px solid #e3e8ef",
@@ -84,7 +98,7 @@ export function BlockCity({ stats, cardStats, maxes, onStatsChange }: BlockCityP
         boxShadow: "0 6px 16px rgba(80,110,150,0.14)",
       }}
     >
-      <div style={{ fontSize: 34, fontWeight: 900, lineHeight: 1, color: m.color }}>{cardStats[m.key]}</div>
+      <div className="city-stat-value" style={{ fontSize: 34, fontWeight: 900, lineHeight: 1, color: m.color }}>{cardStats[m.key]}</div>
       <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, color: "#9aa3b2", marginTop: 5, fontFamily: mono }}>
         {m.cardLabel}
       </div>
@@ -104,19 +118,19 @@ export function BlockCity({ stats, cardStats, maxes, onStatsChange }: BlockCityP
         overflow: "hidden",
       }}
     >
-      <style>{RANGE_CSS}</style>
+      <style>{BLOCK_CITY_CSS}</style>
 
       <div ref={wrapRef} style={{ flex: 1, position: "relative", minHeight: 0 }}>
         <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }} />
 
-        <div style={{ position: "absolute", top: 24, left: 28, pointerEvents: "none" }}>
+        <div className="city-header" style={{ position: "absolute", top: 24, left: 28, pointerEvents: "none" }}>
           <div style={{ fontSize: 12, letterSpacing: 4, fontWeight: 800, color: "#d97a55", fontFamily: mono }}>TASK·FLOW</div>
-          <div style={{ fontSize: 30, fontWeight: 900, color: "#2a3140", marginTop: 2, letterSpacing: 0.5 }}>
+          <div className="city-title" style={{ fontSize: 30, fontWeight: 900, color: "#2a3140", marginTop: 2, letterSpacing: 0.5 }}>
             任務之城 <span style={{ fontSize: 18, color: "#5a86c4" }}>WORKCITY</span>
           </div>
         </div>
 
-        <div style={{ position: "absolute", top: 22, right: 28, display: "flex", gap: 10, pointerEvents: "none" }}>
+        <div className="city-stats" style={{ position: "absolute", top: 22, right: 28, display: "flex", gap: 10, pointerEvents: "none" }}>
           {METRICS.map(card)}
         </div>
 
@@ -138,6 +152,7 @@ export function BlockCity({ stats, cardStats, maxes, onStatsChange }: BlockCityP
       </div>
 
       <div
+        className="city-sliders"
         style={{
           flex: "none",
           background: "#fff",
@@ -149,7 +164,7 @@ export function BlockCity({ stats, cardStats, maxes, onStatsChange }: BlockCityP
         }}
       >
         {METRICS.map((m) => (
-          <div key={m.key} style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, color: m.color }}>
+          <div key={m.key} className="city-slider" style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, color: m.color }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
               <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, fontFamily: mono }}>{m.sliderLabel}</span>
               <span style={{ fontSize: 12, fontWeight: 900, fontFamily: mono }}>{stats[m.key]}</span>
