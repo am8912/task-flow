@@ -306,7 +306,12 @@ export class CityEngine {
     const P = this.PAL, fh = 16
     let floors = b.active ? Math.max(1, Math.round(b.baseFloors * 0.5))
       : b.baseFloors + (b.central ? Math.round(this.nComp * 14) : Math.round(this.nComp * 2.2))
-    floors = Math.max(1, floors); const H = floors * fh
+    floors = Math.max(1, floors)
+    // The central "growth tower" scales with completion rate and would
+    // otherwise reach ~18 floors at nComp=1 — tall enough to poke up past
+    // the header/stat-card overlay. Cap it well short of that.
+    if (b.central) floors = Math.min(floors, 15)
+    const H = floors * fh
     const top = this.drawBox(ctx, b.x, b.y, b.w, b.d, 0, H, b.col, { win: (b.kind === 'office' || b.kind === 'resi' || b.kind === 'station'), cap: b.cap, glass: P.glass, seed: (b.x * 13 + b.y * 7) })
     if (b.active) { this.drawMaterials(ctx, b); this.drawScaffold(ctx, b, H); this.drawCrane(ctx, b, H) }
     else {
@@ -457,8 +462,22 @@ export class CityEngine {
     const g = ctx.createRadialGradient(w * 0.5, h * 0.18, 20, w * 0.5, h * 0.18, h * 0.7); g.addColorStop(0, 'rgba(255,250,220,0.6)'); g.addColorStop(1, 'rgba(255,250,220,0)')
     ctx.fillStyle = g; ctx.fillRect(0, 0, w, h)
     const worldW = 900, worldH = 560, pad = 40
-    const s = Math.min((w - pad * 2) / worldW, (h - 150) / worldH)
-    ctx.save(); ctx.translate(w / 2, pad + 90); ctx.scale(s, s); ctx.translate(0, 40)
+    // Below the stacking breakpoint (see BLOCK_CITY_CSS) the stat cards sit
+    // above the scene instead of beside it, and can wrap onto a 2nd row on
+    // very narrow screens — so measure their actual rendered height each
+    // frame rather than guessing a fixed pixel value, and start the city
+    // right below it (with a little breathing room) so tall structures
+    // (cranes, towers) never poke up into the overlay.
+    let topInset = 0
+    if (w <= 768) {
+      const statsEl = this.wrap.querySelector('.city-stats') as HTMLElement | null
+      if (statsEl) {
+        const statsBottom = statsEl.getBoundingClientRect().bottom - this.wrap.getBoundingClientRect().top
+        topInset = Math.max(0, statsBottom + 16)
+      }
+    }
+    const s = Math.min((w - pad * 2) / worldW, (h - 150 - topInset) / worldH)
+    ctx.save(); ctx.translate(w / 2, pad + 90 + topInset); ctx.scale(s, s); ctx.translate(0, 40)
 
     this.drawGround(ctx)
     for (const cvn of this.conveyors) this.drawConveyor(ctx, cvn)
